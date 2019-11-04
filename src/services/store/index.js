@@ -3,6 +3,7 @@ import Vuex from "vuex";
 import Article from "./article";
 import UserModule from "./user";
 import RBAC from "./rbac"
+import Register from "./register";
 import i18n from '@/plugins/i18n';
 
 const LOGIN = "/api/login"
@@ -13,7 +14,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     strict: true,
-    modules: { user_manager: UserModule, article: Article, rbac: RBAC },
+    modules: { user_manager: UserModule, article: Article, rbac: RBAC, register: Register },
     state: {
         $server: {},
         languages: [
@@ -27,16 +28,18 @@ export default new Vuex.Store({
         user: {},
     },
     getters: {
-         permissions(state) {
+        permissions(state) {
             return state.user.permissions || []
         },
         accessAny: state  => (...data ) => {
             return data.some( (e) => {
+                if ( e == '@' ) return state.authenticated 
                 return (state.user.permissions || []).includes(e)
             })
         },
         accessAll: state => (...data ) => {
             return !data.some( (e) => {
+                if ( e == '@' ) return !state.authenticated 
                 return !(state.user.permissions || []).includes(e)
             })
         }

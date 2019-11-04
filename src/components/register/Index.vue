@@ -7,15 +7,15 @@
                 v-toolbar-title {{ $t('register.title') }}
                 v-spacer
             v-card-text
-                v-dialog(
-                    v-model="dialog"
-                    max-width="500px"
-                )
-
                 v-data-table.elevation-1(
                     :headers="headers"
                     :items="registers"
                     class="elevation-1"
+                    single-expand=true
+                    show-expand
+                    disable-pagination=true
+                    hide-default-footer
+                    @item-expanded="elExpanded"
                 )
                     template(
                         v-slot:top
@@ -26,83 +26,122 @@
                         )
                             v-toolbar-title {{ $t('form.title.list') }}
                             v-spacer
-                            v-icon(
-                                color="primary"
-                                @click="newArticle"
-                                x-large
-                            ) add_box
+                            v-btn(
+                                @click="columnsDisplay"
+                            ) {{ $t("system.columns")}}
+                           
+                        v-row(
+                            v-if="showColumn"
+                        )
+                            v-checkbox.mx-5(
+                                v-for="header in defaultHeaders"
+                                v-model="header.show"
+                                :key="header.value"
+                                :label="$t(header.textAlias)"
+                            )
 
                     template(
-                        v-slot:item.action="{ item }"
+                        v-slot:item.is_enabled="{ item }"
                     )
-                        v-icon(
-                            class="mr-2"
-                            small
-                            @click="editItem(item)"
-                        ) edit
+                        v-switch(
+                            :input-value="item.is_enabled"
+                            @change="toggleEnable(item)"
+                        )
 
+                    template(
+                        v-slot:item.is_active="{ item }"
+                    )
+                        v-switch(
+                            :input-value="item.is_active"
+                            @change="toggleActive(item)"
+                        )
 
+                    template(
+                        v-slot:expanded-item="{ headers }"
+                    ) 
+                        td(
+                            :colspan="headers.length"
+                        ) 
+                            v-row
+                                v-col(cols="12")
+                                    edit(
+                                        :item="editedItem"
+                                    )
 
 </template>
 
 <script>
 
-import { mapState } from "vuex"
-import ArticleForm from "./ArticleForm"
+import { mapState, mapActions } from "vuex"
+import Edit from "./Edit"
 
 export default {
-    name: "descriptionList",
-    components: { ArticleForm },
+    name: "registers",
+    components: { Edit },
     data: () => {
         return {
+            showColumn: false,
             loading: true,
             search: '',
             dialog: false,
             editedIndex: -1,
             is_new: true,
             editedItem: {
-                id: "",
-                code: 0,
-                language: "",
+                id: 0,
+                name: "",
                 title: "",
-                description: ""
+                description: "",
+                is_enabled: 0,
+                is_active: 0,
             },
-            options: { search: ''},
-            headers: [
-                { text: 'Code', value: 'code' },
-                { text: 'Language', value: 'language' },
-                { text: 'Title', value: 'title' },
-                { text: 'Description', value: 'description' },
-                { text: 'Actions', value: 'action', sortable: false },
+            defaultHeaders: [
+                { text: '', textAlias: 'register.id', value: 'id', show: true },
+                { text: '', textAlias: 'register.name', value: 'name',  show: true },
+                { text: '', textAlias: 'register.description', value: 'description', show: true },
+                { text: '', textAlias: 'register.is_enabled', value: 'is_enabled', show: true },
+                { text: '', textAlias: 'register.is_active', value: 'is_active', show: true },
             ]
         }
     },
-    watch: {
-        dialog (val) {
-            val || this.close()
-        }
-    },
+
     computed: {
         ...mapState({
-            languages: state => state.article.languages,
-            articles: state => state.article.descriptionList,
-            totalCount: state => state.article.totalCount,
-        })
+            registers: state => state.register.list,
+        }),
+        headers() {
+            return this.defaultHeaders.reduce( ( ac, el ) => {
+                el.show && ac.push(el) && ( el.text = this.$t(el.textAlias) )
+                return ac
+            }  ,  [] ) 
+        }
     },
     methods: {
-        newArticle() {
+        ...mapActions({
+            update: 'register/updateRegister',
+        }),
+        newRegister() {
             this.dialog = true
         },
-        submitArticle() {
-            this.dialog = false
-        },
-        cancelArticle() {
-            this.dialog = false
+        columnsDisplay() {
+            this.showColumn = !this.showColumn
         },
         editItem(item) {
             this.editedIndex = this.articles.indexOf(item)
             this.editedItem = Object.assign({}, item)
             this.dialog = true
+        },
+        toggleActive(item) {
+            this.editedItem = Object.assign({}, item)
+            this.editedItem.is_active = this.editedItem.is_active ? 0 : 1 
+            this.update(this.editedItem)
+        },
+        toggleEnable(item) {
+            this.editedItem = Object.assign({}, item)
+            this.editedItem.is_enabled = this.editedItem.is_enabled ? 0 : 1 
+            this.update(this.editedItem) 
+        },
+        elExpanded( { item } ) {
+            this.editedItem = Object.assign({}, item)
         },
         close() {
             this.dialog = false
@@ -113,11 +152,11 @@ export default {
                 Object.assign(this.articles[this.editedIndex], this.editedItem)
             }
             this.close()
-        }
+        },
+
     },
-    mounted() {
-        // this.$store.dispatch("description_manager/loadDescriptionList", this.options)
-        !this.languages.length && this.$store.dispatch("article/loadLanguages")
+    async mounted() {
+        await this.$store.dispatch("register/loadList")    
     }
 }
 

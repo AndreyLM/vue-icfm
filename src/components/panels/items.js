@@ -17,6 +17,20 @@ export default [
            }, 
         ]
     },
+    
+    {
+        subheader: "system.settings",
+        permissions: [ "@" ],
+        items: [
+           {
+                permission: "@",
+                link: "/registers",
+                icon: "compare_arrows",
+                title: 'register.list',
+           }, 
+        ]
+    },
+
     {
         subheader: "article.articles",
         permissions: [ "descriptions" ],

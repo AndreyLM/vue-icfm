@@ -38,7 +38,13 @@ const messages = {
     'en': {
 		//for testing {{ $t('test') }}
 		test: "¯\\_(ツ)_/¯",
-
+		system: {
+			columns: 'Columns',
+			settings: 'Settings',
+			actions: 'Actions',
+			edit: "Edit",
+			save: "Save",
+		},
 		administration: "Administration",
 		alert: {
 			title: "Wrong data",
@@ -53,6 +59,15 @@ const messages = {
 			import: "Import",
 			languages: "Languages",
 			settings: "settings",
+		},
+		register: {
+			list: "Register list",
+			id: "ID",
+			name: "Code",
+			title: "Name",
+			description: "Description",
+			is_enabled: "Enabled", 
+			is_active: "Active"
 		},
         buttons: {
             add: "Add",
@@ -124,7 +139,13 @@ const messages = {
     'uk': {
 		//for testing {{ $t('test') }}
 		test: "¯\\_(ツ)_/¯",
-
+		system: {
+			columns: 'Колонки',
+			settings: 'Налаштування',
+			actions: 'Дії',
+			edit: "Редагувати",
+			save: "Зберегти",
+		},
 		administration: "Управління",
 		alert: {
 			title: "Невірні дані",
@@ -139,6 +160,15 @@ const messages = {
 			import: "Імпорт",
 			languages: "Мови статтей",
 			settings: "Налаштування",
+		},
+		register: {
+			list: "Список реєстрів",
+			id: "Ід",
+			name: "Код",
+			title: "Назва",
+			description: "Опис",
+			is_enabled: "Призупинений", 
+			is_active: "Активний"
 		},
 		buttons: {
             add: "Додати",
